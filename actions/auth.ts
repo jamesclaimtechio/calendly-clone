@@ -12,8 +12,8 @@ import bcrypt from "bcrypt"
 import { AuthError } from "next-auth"
 
 import { db } from "@/lib/db"
-import { signIn } from "@/lib/auth"
-import { signUpSchema, type SignUpInput } from "@/lib/validations/auth"
+import { signIn, signOut } from "@/lib/auth"
+import { signUpSchema, loginSchema, type SignUpInput, type LoginInput } from "@/lib/validations/auth"
 
 /**
  * Default availability for new users
@@ -160,4 +160,90 @@ export async function signUp(input: SignUpInput): Promise<ActionResult> {
 
   // 7. Redirect to dashboard (outside try-catch to allow redirect to work)
   redirect("/dashboard")
+}
+
+/**
+ * Login Action Result
+ */
+type LoginResult = {
+  success: boolean
+  error?: string
+}
+
+/**
+ * Login Action
+ * 
+ * Authenticates a user with email and password.
+ * 
+ * SECURITY: Always returns generic "Invalid email or password" error
+ * to prevent user enumeration attacks.
+ * 
+ * Flow:
+ * 1. Validate input with Zod
+ * 2. Call signIn("credentials") with redirect: false
+ * 3. Handle errors with generic message
+ * 4. Redirect to dashboard on success
+ */
+export async function login(input: LoginInput): Promise<LoginResult> {
+  try {
+    // 1. Validate input
+    const validationResult = loginSchema.safeParse(input)
+    
+    if (!validationResult.success) {
+      // Return generic error for invalid input
+      return { 
+        success: false, 
+        error: "Please enter a valid email and password" 
+      }
+    }
+
+    const { email, password } = validationResult.data
+
+    // 2. Call signIn with redirect: false to handle manually
+    await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    })
+
+  } catch (error) {
+    // 3. Handle AuthError - return generic message for security
+    if (error instanceof AuthError) {
+      // SECURITY: Never reveal which field is wrong
+      return {
+        success: false,
+        error: "Invalid email or password",
+      }
+    }
+
+    // Re-throw NEXT_REDIRECT errors (these are expected on success)
+    if (
+      error &&
+      typeof error === "object" &&
+      "digest" in error &&
+      typeof (error as { digest: unknown }).digest === "string" &&
+      (error as { digest: string }).digest.startsWith("NEXT_REDIRECT")
+    ) {
+      throw error
+    }
+
+    console.error("Login error:", error)
+    return {
+      success: false,
+      error: "Something went wrong. Please try again.",
+    }
+  }
+
+  // 4. Redirect to dashboard on success
+  redirect("/dashboard")
+}
+
+/**
+ * Logout Action
+ * 
+ * Clears the user session and redirects to login page.
+ * Called from dashboard via form action.
+ */
+export async function logout() {
+  await signOut({ redirectTo: "/login" })
 }

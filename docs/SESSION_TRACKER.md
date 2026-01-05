@@ -10,9 +10,9 @@
 | Field | Value |
 |-------|-------|
 | **Current Module** | Module 2: Authentication |
-| **Current Chunk** | 2.2 - Sign Up Flow |
+| **Current Chunk** | 2.4 - Route Protection + Logout |
 | **Chunk Status** | ✅ Complete |
-| **Next Chunk** | 2.3 - Login Flow |
+| **Next Chunk** | Module 3: Event Types |
 
 ---
 
@@ -32,8 +32,10 @@
 |-------|------|--------|-------|
 | 2.1 | Auth.js Config | ✅ Complete | JWT strategy, Credentials provider, endpoints working |
 | 2.2 | Sign Up Flow | ✅ Complete | Form, validation, server action, username check API |
-| 2.3 | Login Flow | ⬜ Not Started | |
-| 2.4 | Route Protection + Logout | ⬜ Not Started | |
+| 2.3 | Login Flow | ✅ Complete | Login form, generic error message, redirect to dashboard |
+| 2.4 | Route Protection + Logout | ✅ Complete | Middleware, logout action, dashboard shell |
+
+### Module 2: Authentication ✅
 
 ---
 
@@ -187,6 +189,60 @@
 
 ---
 
+**Chunk 2.3 - Login Flow**
+
+#### What Was Done
+1. Added login action to actions/auth.ts:
+   - Validates input with loginSchema
+   - Calls signIn("credentials") with redirect: false
+   - Returns generic "Invalid email or password" error (security)
+   - Handles AuthError and NEXT_REDIRECT
+   - Redirects to /dashboard on success
+2. Created app/(auth)/login/page.tsx:
+   - react-hook-form with zodResolver
+   - Email and password fields
+   - Generic error message display
+   - Link to signup page
+   - Consistent Calendly-styled design
+
+#### Decisions Made
+- **Generic error message**: Always returns "Invalid email or password" regardless of which field is wrong (prevents user enumeration)
+- **Reused existing loginSchema**: Created in Chunk 2.2, already validated
+
+#### Issues Encountered
+None - straightforward implementation.
+
+---
+
+**Chunk 2.4 - Route Protection + Logout**
+
+#### What Was Done
+1. Created middleware.ts at project root:
+   - Uses edge-compatible auth.config.ts
+   - Matcher for /dashboard/*, /login, /signup
+   - Redirects unauthenticated users to /login
+   - Redirects authenticated users away from auth pages to /dashboard
+2. Added logout action to actions/auth.ts:
+   - Calls signOut() with redirectTo: "/login"
+3. Updated app/(dashboard)/layout.tsx:
+   - Server component with auth() session check
+   - Header with logo, user email, and logout button
+   - Clean Calendly-styled design
+4. Created app/(dashboard)/dashboard/page.tsx:
+   - Welcome message with username
+   - Placeholder stats cards (event types, bookings, booking link)
+   - Placeholder for event types list
+
+#### Decisions Made
+- **Middleware matcher includes auth pages**: So the authorized callback can redirect logged-in users to dashboard
+- **Form action for logout**: Uses native form submission for progressive enhancement
+- **Dashboard uses session from auth()**: Trust middleware for protection, use auth() only for user data
+
+#### Issues Encountered
+None - authorized callback was already implemented in auth.config.ts from Chunk 2.1.
+
+---
+
 ## Files Created This Session
 
 ```
@@ -221,6 +277,13 @@
 /app/api/username/check/route.ts
 /actions/auth.ts
 /app/(auth)/signup/page.tsx
+
+# Chunk 2.3
+/app/(auth)/login/page.tsx
+
+# Chunk 2.4
+/middleware.ts
+/app/(dashboard)/dashboard/page.tsx
 ```
 
 ---
@@ -241,33 +304,59 @@ Before testing full auth flow, complete Neon database setup:
 
 ---
 
-## Chunk 2.2 Acceptance Tests
+## Chunk 2.4 Acceptance Tests
 
 | Test | Status |
 |------|--------|
-| Form dependencies installed | ✅ PASS |
-| /signup page loads with form | ✅ PASS |
-| Username field shows availability status | ✅ PASS (UI ready, requires DB) |
-| Validation schemas compile | ✅ PASS |
-| Server action compiles | ✅ PASS |
+| Middleware created at project root | ✅ PASS |
+| /dashboard redirects to /login when not authenticated | ✅ PASS |
+| Logout action added to actions/auth.ts | ✅ PASS |
+| Dashboard layout has user info and logout button | ✅ PASS |
+| Dashboard page with welcome message created | ✅ PASS |
+| `/api/auth/providers` still works | ✅ PASS |
+| `pnpm build` completes | ✅ PASS |
+
+**Note:** Full flow testing (login, see dashboard, logout) requires database with existing user.
+
+---
+
+## Chunk 2.3 Acceptance Tests
+
+| Test | Status |
+|------|--------|
+| Login action added to actions/auth.ts | ✅ PASS |
+| /login page loads with form | ✅ PASS |
+| Form has email and password fields | ✅ PASS |
+| Link to /signup works | ✅ PASS |
 | `/api/auth/session` still works | ✅ PASS |
 | `pnpm build` completes | ✅ PASS |
 
-**Note:** Full signup flow testing requires database connection.
+**Note:** Full login flow testing requires database connection with existing user.
 
 ---
 
 ## Next Steps
 
 1. **User:** Complete Neon database setup (if not done)
-2. Start Chunk 2.3: Login Flow
-   - Create /login page with form
-   - Implement login with signIn("credentials")
-   - Generic "Invalid email or password" error
-   - Redirect to dashboard on success
+2. **User:** Run `npx prisma db push` to create database tables
+3. **User:** Test full auth flow (signup → dashboard → logout → login)
+4. Start Module 3: Event Types
+   - Event type CRUD operations
+   - Dashboard event types list
+   - Event type creation form
+
+---
+
+## Module 2 Complete! 🎉
+
+All 4 chunks of Module 2 (Authentication) are complete:
+- ✅ 2.1 Auth.js Config
+- ✅ 2.2 Sign Up Flow
+- ✅ 2.3 Login Flow
+- ✅ 2.4 Route Protection + Logout
 
 ---
 
 ## Blockers
 
-None currently. Chunk 2.2 complete. Awaiting database for full flow testing.
+None currently. Module 2 complete. Ready to start Module 3 after database setup.
