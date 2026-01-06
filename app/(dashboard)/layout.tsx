@@ -5,14 +5,14 @@
  * Middleware ensures only authenticated users reach this layout.
  * 
  * Features:
- * - Header with user info and logout button
+ * - Header with navigation, user info, and logout button
  * - Consistent background color
  */
 
 import { auth } from "@/lib/auth"
 import { logout } from "@/actions/auth"
 import { Button } from "@/components/ui/button"
-import { LogOut, Calendar } from "lucide-react"
+import { LogOut, Calendar, LayoutDashboard, CalendarDays, Settings } from "lucide-react"
 import Link from "next/link"
 
 export default async function DashboardLayout({
@@ -28,17 +28,44 @@ export default async function DashboardLayout({
       <header className="bg-[var(--color-bg-primary)] border-b border-[#E5E7EB]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* Logo/Brand */}
-            <Link href="/dashboard" className="flex items-center gap-2">
-              <Calendar className="h-6 w-6 text-[var(--color-primary)]" />
-              <span className="font-semibold text-[var(--color-text-primary)]">
-                Calendly
-              </span>
-            </Link>
+            {/* Logo/Brand + Navigation */}
+            <div className="flex items-center gap-8">
+              <Link href="/dashboard" className="flex items-center gap-2">
+                <Calendar className="h-6 w-6 text-[var(--color-primary)]" />
+                <span className="font-semibold text-[var(--color-text-primary)]">
+                  Calendly
+                </span>
+              </Link>
+
+              {/* Navigation Links */}
+              <nav className="hidden sm:flex items-center gap-1">
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)] transition-colors"
+                >
+                  <LayoutDashboard className="h-4 w-4" />
+                  Home
+                </Link>
+                <Link
+                  href="/dashboard/events"
+                  className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)] transition-colors"
+                >
+                  <CalendarDays className="h-4 w-4" />
+                  Event Types
+                </Link>
+                <Link
+                  href="/dashboard/settings"
+                  className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)] transition-colors"
+                >
+                  <Settings className="h-4 w-4" />
+                  Settings
+                </Link>
+              </nav>
+            </div>
 
             {/* User Info + Logout */}
             <div className="flex items-center gap-4">
-              <span className="text-sm text-[var(--color-text-secondary)]">
+              <span className="text-sm text-[var(--color-text-secondary)] hidden sm:block">
                 {session?.user?.email}
               </span>
               

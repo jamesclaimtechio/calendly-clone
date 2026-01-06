@@ -14,20 +14,7 @@ import { AuthError } from "next-auth"
 import { db } from "@/lib/db"
 import { signIn, signOut } from "@/lib/auth"
 import { signUpSchema, loginSchema, type SignUpInput, type LoginInput } from "@/lib/validations/auth"
-
-/**
- * Default availability for new users
- * Mon-Fri 9:00-17:00, weekends disabled
- */
-const DEFAULT_AVAILABILITY = {
-  monday: { enabled: true, start: "09:00", end: "17:00" },
-  tuesday: { enabled: true, start: "09:00", end: "17:00" },
-  wednesday: { enabled: true, start: "09:00", end: "17:00" },
-  thursday: { enabled: true, start: "09:00", end: "17:00" },
-  friday: { enabled: true, start: "09:00", end: "17:00" },
-  saturday: { enabled: false, start: "09:00", end: "17:00" },
-  sunday: { enabled: false, start: "09:00", end: "17:00" },
-}
+import { DEFAULT_AVAILABILITY, DEFAULT_TIMEZONE } from "@/lib/constants/availability"
 
 /**
  * Action result type for consistent error handling
@@ -99,13 +86,14 @@ export async function signUp(input: SignUpInput): Promise<ActionResult> {
     // 4. Hash password with bcrypt (10 rounds per .cursorrules Rule #6)
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    // 5. Create user with default availability
+    // 5. Create user with default availability and timezone
     await db.user.create({
       data: {
         email,
         username,
         password: hashedPassword,
-        availability: DEFAULT_AVAILABILITY,
+        availability: DEFAULT_AVAILABILITY as object,
+        timezone: DEFAULT_TIMEZONE,
       },
     })
 

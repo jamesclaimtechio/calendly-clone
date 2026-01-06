@@ -2,12 +2,15 @@
  * Dashboard Home Page
  * 
  * Main landing page for authenticated users.
- * Displays welcome message and will show event types in future modules.
+ * Displays welcome message and quick overview.
  */
 
 import { auth } from "@/lib/auth"
+import { getEventTypes } from "@/actions/events"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Calendar, Clock, Link as LinkIcon } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Calendar, Clock, Link as LinkIcon, ArrowRight } from "lucide-react"
+import Link from "next/link"
 
 export default async function DashboardPage() {
   const session = await auth()
@@ -17,6 +20,10 @@ export default async function DashboardPage() {
     || session?.user?.username 
     || session?.user?.email?.split("@")[0] 
     || "there"
+
+  // Fetch event types count
+  const eventsResult = await getEventTypes()
+  const eventCount = eventsResult.success ? (eventsResult.data?.length || 0) : 0
 
   return (
     <div className="space-y-8">
@@ -30,22 +37,24 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      {/* Quick Stats (Placeholder) */}
+      {/* Quick Stats */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-[var(--color-text-secondary)]">
-              Event Types
-            </CardTitle>
-            <Calendar className="h-4 w-4 text-[var(--color-text-muted)]" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-[var(--color-text-primary)]">0</div>
-            <p className="text-xs text-[var(--color-text-muted)]">
-              Create your first event type
-            </p>
-          </CardContent>
-        </Card>
+        <Link href="/dashboard/events">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-[var(--color-text-secondary)]">
+                Event Types
+              </CardTitle>
+              <Calendar className="h-4 w-4 text-[var(--color-text-muted)]" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-[var(--color-text-primary)]">{eventCount}</div>
+              <p className="text-xs text-[var(--color-text-muted)]">
+                {eventCount === 0 ? "Create your first event type" : "Manage your event types"}
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -71,7 +80,7 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-sm font-medium text-[var(--color-primary)] truncate">
-              calendly.com/{session?.user?.username || "username"}
+              /{session?.user?.username || "username"}
             </div>
             <p className="text-xs text-[var(--color-text-muted)]">
               Share with others
@@ -80,19 +89,20 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
-      {/* Placeholder for Event Types List */}
+      {/* Quick Action */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-[var(--color-text-primary)]">
-            Your Event Types
+            Quick Actions
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-12 text-[var(--color-text-muted)]">
-            <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>No event types yet</p>
-            <p className="text-sm">Create your first event type to start accepting bookings</p>
-          </div>
+          <Link href="/dashboard/events">
+            <Button className="rounded-full">
+              {eventCount === 0 ? "Create your first event type" : "Manage Event Types"}
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
         </CardContent>
       </Card>
     </div>
