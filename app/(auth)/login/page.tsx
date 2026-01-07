@@ -14,6 +14,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
+import Image from "next/image"
 import { Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -59,6 +60,17 @@ export default function LoginPage() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="text-center">
+        {/* Calendly Logo */}
+        <Link href="/" className="mx-auto mb-4 block">
+          <Image
+            src="/calendly-logo.png"
+            alt="Calendly"
+            width={160}
+            height={40}
+            className="h-10 w-auto"
+            priority
+          />
+        </Link>
         <CardTitle className="text-2xl font-bold text-[var(--color-text-primary)]">
           Welcome back
         </CardTitle>

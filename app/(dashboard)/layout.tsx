@@ -12,8 +12,9 @@
 import { auth } from "@/lib/auth"
 import { logout } from "@/actions/auth"
 import { Button } from "@/components/ui/button"
-import { LogOut, Calendar, LayoutDashboard, CalendarDays, Settings } from "lucide-react"
+import { LogOut, LayoutDashboard, CalendarDays, Settings } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 export default async function DashboardLayout({
   children,
@@ -30,11 +31,15 @@ export default async function DashboardLayout({
           <div className="flex justify-between items-center h-16">
             {/* Logo/Brand + Navigation */}
             <div className="flex items-center gap-8">
-              <Link href="/dashboard" className="flex items-center gap-2">
-                <Calendar className="h-6 w-6 text-[var(--color-primary)]" />
-                <span className="font-semibold text-[var(--color-text-primary)]">
-                  Calendly
-                </span>
+              <Link href="/dashboard" className="flex-shrink-0">
+                <Image
+                  src="/calendly-logo.png"
+                  alt="Calendly"
+                  width={120}
+                  height={32}
+                  className="h-7 w-auto"
+                  priority
+                />
               </Link>
 
               {/* Navigation Links */}

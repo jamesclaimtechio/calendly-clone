@@ -11,6 +11,11 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Calendly Clone - Easy Scheduling",
   description: "Schedule meetings effortlessly with real-time availability",
+  icons: {
+    icon: "/calendly-icon.png",
+    shortcut: "/calendly-icon.png",
+    apple: "/calendly-icon.png",
+  },
 }
 
 export default function RootLayout({

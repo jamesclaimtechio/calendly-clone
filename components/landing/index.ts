@@ -1,0 +1,11 @@
+// Landing page components barrel export
+export { Navbar } from "./navbar"
+export { HeroSection } from "./hero-section"
+export { SocialProof } from "./social-proof"
+export { WorkflowSection } from "./workflow-section"
+export { FeaturesSection } from "./features-section"
+export { IntegrationsSection } from "./integrations-section"
+export { PricingSection } from "./pricing-section"
+export { StatsSection } from "./stats-section"
+export { FooterCta } from "./footer-cta"
+export { SiteFooter } from "./site-footer"
