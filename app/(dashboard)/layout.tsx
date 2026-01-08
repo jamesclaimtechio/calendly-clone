@@ -12,7 +12,7 @@
 import { auth } from "@/lib/auth"
 import { logout } from "@/actions/auth"
 import { Button } from "@/components/ui/button"
-import { LogOut, LayoutDashboard, CalendarDays, Settings } from "lucide-react"
+import { LogOut, LayoutDashboard, CalendarDays, CalendarCheck, Settings } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -57,6 +57,13 @@ export default async function DashboardLayout({
                 >
                   <CalendarDays className="h-4 w-4" />
                   Event Types
+                </Link>
+                <Link
+                  href="/dashboard/bookings"
+                  className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)] transition-colors"
+                >
+                  <CalendarCheck className="h-4 w-4" />
+                  Bookings
                 </Link>
                 <Link
                   href="/dashboard/settings"

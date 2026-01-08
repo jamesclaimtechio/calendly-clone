@@ -62,20 +62,22 @@ export default async function DashboardPage() {
           </Card>
         </Link>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-[var(--color-text-secondary)]">
-              Upcoming Bookings
-            </CardTitle>
-            <Clock className="h-4 w-4 text-[var(--color-text-muted)]" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-[var(--color-text-primary)]">{bookingCount}</div>
-            <p className="text-xs text-[var(--color-text-muted)]">
-              {bookingCount === 0 ? "No upcoming meetings" : `${bookingCount} upcoming meeting${bookingCount === 1 ? "" : "s"}`}
-            </p>
-          </CardContent>
-        </Card>
+        <Link href="/dashboard/bookings">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-[var(--color-text-secondary)]">
+                Upcoming Bookings
+              </CardTitle>
+              <Clock className="h-4 w-4 text-[var(--color-text-muted)]" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-[var(--color-text-primary)]">{bookingCount}</div>
+              <p className="text-xs text-[var(--color-text-muted)]">
+                {bookingCount === 0 ? "No upcoming meetings" : `${bookingCount} upcoming meeting${bookingCount === 1 ? "" : "s"}`}
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
