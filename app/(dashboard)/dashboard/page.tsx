@@ -7,6 +7,7 @@
 
 import { auth } from "@/lib/auth"
 import { getEventTypes } from "@/actions/events"
+import { getUpcomingBookings } from "@/actions/booking"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Calendar, Clock, Link as LinkIcon, ArrowRight } from "lucide-react"
@@ -21,9 +22,14 @@ export default async function DashboardPage() {
     || session?.user?.email?.split("@")[0] 
     || "there"
 
-  // Fetch event types count
-  const eventsResult = await getEventTypes()
+  // Fetch event types count and upcoming bookings in parallel
+  const [eventsResult, bookingsResult] = await Promise.all([
+    getEventTypes(),
+    getUpcomingBookings(),
+  ])
+  
   const eventCount = eventsResult.success ? (eventsResult.data?.length || 0) : 0
+  const bookingCount = bookingsResult.success ? bookingsResult.count : 0
 
   return (
     <div className="space-y-8">
@@ -64,9 +70,9 @@ export default async function DashboardPage() {
             <Clock className="h-4 w-4 text-[var(--color-text-muted)]" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-[var(--color-text-primary)]">0</div>
+            <div className="text-2xl font-bold text-[var(--color-text-primary)]">{bookingCount}</div>
             <p className="text-xs text-[var(--color-text-muted)]">
-              No upcoming meetings
+              {bookingCount === 0 ? "No upcoming meetings" : `${bookingCount} upcoming meeting${bookingCount === 1 ? "" : "s"}`}
             </p>
           </CardContent>
         </Card>

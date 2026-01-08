@@ -8,6 +8,7 @@
 "use server"
 
 import { db } from "@/lib/db"
+import { auth } from "@/lib/auth"
 import { createBookingSchema, type CreateBookingInput } from "@/lib/validations/booking"
 import { addMinutes } from "date-fns"
 
@@ -165,6 +166,96 @@ export async function createBooking(
     return {
       success: false,
       error: "Something went wrong. Please try again.",
+    }
+  }
+}
+
+// ============================================
+// Get Upcoming Bookings Action
+// ============================================
+
+/**
+ * Booking data returned from getUpcomingBookings
+ */
+export type UpcomingBooking = {
+  id: string
+  startTime: Date
+  endTime: Date
+  inviteeName: string
+  inviteeEmail: string
+  eventType: {
+    name: string
+    duration: number
+  }
+}
+
+/**
+ * Result type for getUpcomingBookings
+ */
+export type GetUpcomingBookingsResult =
+  | { success: true; bookings: UpcomingBooking[]; count: number }
+  | { success: false; error: string }
+
+/**
+ * Get upcoming bookings for the authenticated user (host).
+ * 
+ * Returns all bookings for the user's event types that are in the future.
+ * Sorted by start time ascending (soonest first).
+ * 
+ * @returns List of upcoming bookings or error
+ */
+export async function getUpcomingBookings(): Promise<GetUpcomingBookingsResult> {
+  try {
+    const session = await auth()
+    
+    if (!session?.user?.id) {
+      return {
+        success: false,
+        error: "You must be logged in to view bookings.",
+      }
+    }
+
+    const now = new Date()
+
+    // Fetch all upcoming bookings for this user's event types
+    const bookings = await db.booking.findMany({
+      where: {
+        eventType: {
+          userId: session.user.id,
+          deletedAt: null, // Only include active event types
+        },
+        startTime: {
+          gte: now, // Only future bookings
+        },
+      },
+      select: {
+        id: true,
+        startTime: true,
+        endTime: true,
+        inviteeName: true,
+        inviteeEmail: true,
+        eventType: {
+          select: {
+            name: true,
+            duration: true,
+          },
+        },
+      },
+      orderBy: {
+        startTime: "asc", // Soonest first
+      },
+    })
+
+    return {
+      success: true,
+      bookings,
+      count: bookings.length,
+    }
+  } catch (error) {
+    console.error("Error fetching upcoming bookings:", error)
+    return {
+      success: false,
+      error: "Failed to load bookings.",
     }
   }
 }
