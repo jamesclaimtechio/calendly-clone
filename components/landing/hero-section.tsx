@@ -3,32 +3,32 @@
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { MessageSquare, Mail, Clock } from "lucide-react"
+import { Clock, Video, ChevronLeft, ChevronRight, Globe } from "lucide-react"
 
 export function HeroSection() {
   const router = useRouter()
 
   return (
-    <section className="relative overflow-hidden bg-white py-16 lg:py-24">
-      {/* Background gradient shapes */}
-      <div className="pointer-events-none absolute right-0 top-0 h-full w-1/2 overflow-hidden">
-        <div className="absolute -right-20 -top-20 h-[600px] w-[600px] rounded-full bg-gradient-to-br from-[#0069FF] to-[#00D4FF] opacity-90" />
-        <div className="absolute -right-40 top-40 h-[500px] w-[500px] rounded-full bg-gradient-to-br from-[#E040FB] to-[#FF4081] opacity-80" />
-        <div className="absolute bottom-0 right-20 h-[400px] w-[400px] rounded-full bg-gradient-to-br from-[#00D4FF] to-[#0069FF] opacity-70" />
+    <section className="relative overflow-hidden bg-white py-12 md:py-20">
+      {/* Background gradient shapes - positioned on right side */}
+      <div className="pointer-events-none absolute right-0 top-0 h-full w-[60%] overflow-hidden">
+        <div className="absolute -right-20 -top-20 h-[500px] w-[500px] rounded-full bg-gradient-to-br from-[#0069FF] to-[#00D4FF] opacity-90 md:h-[600px] md:w-[600px]" />
+        <div className="absolute right-10 top-32 h-[350px] w-[350px] rounded-full bg-gradient-to-br from-[#E040FB] to-[#FF4081] opacity-85 md:h-[450px] md:w-[450px]" />
+        <div className="absolute -bottom-10 right-40 h-[280px] w-[280px] rounded-full bg-gradient-to-br from-[#7C3AED] to-[#0069FF] opacity-75 md:h-[350px] md:w-[350px]" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-[1200px] px-6">
-        <div className="flex flex-col items-center gap-12 lg:flex-row lg:items-start lg:gap-16">
+      <div className="relative z-10 mx-auto max-w-[1280px] px-6">
+        <div className="flex flex-col gap-8 md:flex-row md:items-center md:gap-12">
           {/* Left Column - Copy */}
-          <div className="flex-1 text-center lg:text-left">
-            <h1 className="text-5xl font-bold leading-tight tracking-tight text-[#0B3558] lg:text-7xl">
+          <div className="flex-1">
+            <h1 className="text-4xl font-bold leading-[1.1] tracking-tight text-[#0B3558] sm:text-5xl md:text-6xl lg:text-7xl">
               Easy
               <br />
               scheduling
               <br />
               ahead
             </h1>
-            <p className="mt-6 text-lg leading-relaxed text-[#476482] lg:text-xl">
+            <p className="mt-6 max-w-md text-base leading-relaxed text-[#476482] sm:text-lg md:text-xl">
               Join 20 million professionals who easily book meetings with the #1
               scheduling tool.
             </p>
@@ -37,7 +37,7 @@ export function HeroSection() {
             <div className="mt-8 flex max-w-sm flex-col gap-3">
               <Button
                 size="lg"
-                className="h-14 w-full gap-3 rounded-md text-base font-medium"
+                className="h-14 w-full gap-3 rounded-lg text-base font-medium"
                 onClick={() => router.push("/signup")}
               >
                 <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -63,7 +63,7 @@ export function HeroSection() {
               <Button
                 variant="outline"
                 size="lg"
-                className="h-14 w-full gap-3 rounded-md border-2 border-[#0B3558] text-base font-medium text-[#0B3558] hover:bg-gray-50"
+                className="h-14 w-full gap-3 rounded-lg border-2 border-[#0B3558] text-base font-medium text-[#0B3558] hover:bg-gray-50"
                 onClick={() => router.push("/signup")}
               >
                 <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -87,7 +87,7 @@ export function HeroSection() {
             <p className="text-sm text-[#476482]">
               <Link
                 href="/signup"
-                className="font-medium text-primary hover:underline"
+                className="font-medium text-primary underline hover:no-underline"
               >
                 Sign up free with email.
               </Link>{" "}
@@ -95,74 +95,194 @@ export function HeroSection() {
             </p>
           </div>
 
-          {/* Right Column - Workflow Card */}
-          <div className="relative flex-1">
-            <div className="relative z-10 mx-auto max-w-lg rounded-2xl bg-white/95 p-8 shadow-2xl backdrop-blur-sm">
-              <h3 className="mb-8 text-xl font-semibold text-[#0B3558] lg:text-2xl">
-                Reduce no-shows and stay on track
-              </h3>
-
-              <div className="flex flex-col gap-6 sm:flex-row sm:gap-8">
-                {/* Text Reminder Card */}
-                <div className="flex-1 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-                  <div className="mb-4 flex items-center gap-2">
-                    <span className="rounded-full bg-[#E8F4FD] px-3 py-1 text-xs font-medium text-primary">
-                      Workflow
-                    </span>
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#E8F4FD]">
-                      <MessageSquare className="h-4 w-4 text-primary" />
-                    </div>
-                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-green-100">
-                      <Clock className="h-3 w-3 text-green-600" />
-                    </div>
-                  </div>
-                  <h4 className="mb-3 font-semibold text-[#0B3558]">
-                    Send text reminder
-                  </h4>
-                  <div className="mb-3 rounded-lg border border-gray-200 px-3 py-2 text-center text-sm text-[#476482]">
-                    24 hours before event starts
-                  </div>
-                  <div className="flex items-center justify-center gap-2 text-sm text-[#476482]">
-                    <div className="h-0.5 w-3 border-l border-dashed border-gray-300" />
-                  </div>
-                  <div className="mt-3 flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm">
-                    <MessageSquare className="h-4 w-4 text-green-500" />
-                    <span className="text-[#476482]">Send text to invitees</span>
-                  </div>
-                </div>
-
-                {/* Email Reminder Card */}
-                <div className="flex-1 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-                  <div className="mb-4 flex items-center gap-2">
-                    <span className="rounded-full bg-[#E8F4FD] px-3 py-1 text-xs font-medium text-primary">
-                      Workflow
-                    </span>
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#E8F4FD]">
-                      <Mail className="h-4 w-4 text-primary" />
-                    </div>
-                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-green-100">
-                      <Clock className="h-3 w-3 text-green-600" />
-                    </div>
-                  </div>
-                  <h4 className="mb-3 font-semibold text-[#0B3558]">
-                    Send follow-up email
-                  </h4>
-                  <div className="mb-3 rounded-lg border border-gray-200 px-3 py-2 text-center text-sm text-[#476482]">
-                    2 hours after event ends
-                  </div>
-                  <div className="flex items-center justify-center gap-2 text-sm text-[#476482]">
-                    <div className="h-0.5 w-3 border-l border-dashed border-gray-300" />
-                  </div>
-                  <div className="mt-3 flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm">
-                    <Mail className="h-4 w-4 text-primary" />
-                    <span className="text-[#476482]">Send email to invitees</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+          {/* Right Column - Mock Booking Interface */}
+          <div className="flex-1">
+            <MockBookingCard />
           </div>
         </div>
       </div>
     </section>
+  )
+}
+
+function MockBookingCard() {
+  const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
+  const calendarDays = [
+    [30, 1, 2, 3, 4, 5, 6],
+    [7, 8, 9, 10, 11, 12, 13],
+    [14, 15, 16, 17, 18, 19, 20],
+    [21, 22, 23, 24, 25, 26, 27],
+    [28, 29, 30, 31, 1, 2, 3],
+  ]
+  const availableDays = [16, 17, 18, 19, 22, 23, 24, 25, 30, 31]
+  const selectedDay = 22
+
+  const timeSlots = ["10:00am", "11:00am", "1:00pm", "2:30pm", "4:00pm"]
+  const selectedTime = "11:00am"
+
+  return (
+    <div className="w-full max-w-xl rounded-2xl bg-white/95 p-5 shadow-2xl backdrop-blur-sm md:p-6">
+      <h3 className="mb-5 text-lg font-semibold text-[#0B3558] md:text-xl">
+        Share your booking page
+      </h3>
+
+      <div className="flex flex-col gap-4 sm:flex-row sm:gap-5">
+        {/* Left Panel - Event Details */}
+        <div className="flex-shrink-0 border-b pb-4 sm:w-36 sm:border-b-0 sm:border-r sm:pb-0 sm:pr-4">
+          {/* Company Logo */}
+          <div className="mb-3 flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0069FF]">
+              <span className="text-xs font-bold text-white">A</span>
+            </div>
+            <span className="text-sm font-semibold text-[#0B3558]">
+              ACME Inc.
+            </span>
+          </div>
+
+          {/* Host Avatar */}
+          <div className="mb-3 h-9 w-9 overflow-hidden rounded-full bg-gradient-to-br from-amber-200 to-amber-400">
+            <div className="flex h-full w-full items-center justify-center text-xs font-medium text-amber-800">
+              FS
+            </div>
+          </div>
+
+          {/* Host Name */}
+          <p className="text-xs text-[#476482]">Fatima Sy</p>
+
+          {/* Event Title */}
+          <h4 className="mt-1 text-base font-semibold text-[#0B3558]">
+            Client Check-in
+          </h4>
+
+          {/* Event Details */}
+          <div className="mt-3 space-y-1.5">
+            <div className="flex items-center gap-1.5 text-xs text-[#476482]">
+              <Clock className="h-3.5 w-3.5" />
+              <span>30 min</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-[#476482]">
+              <Video className="h-3.5 w-3.5" />
+              <span>Zoom</span>
+            </div>
+          </div>
+
+          {/* Placeholder lines */}
+          <div className="mt-4 space-y-1.5">
+            <div className="h-1.5 w-full rounded bg-gray-100" />
+            <div className="h-1.5 w-3/4 rounded bg-gray-100" />
+            <div className="h-1.5 w-1/2 rounded bg-gray-100" />
+          </div>
+        </div>
+
+        {/* Middle Panel - Calendar */}
+        <div className="min-w-0 flex-1">
+          <h5 className="mb-3 text-sm font-semibold text-[#0B3558]">
+            Select a Date & Time
+          </h5>
+
+          {/* Month Navigation */}
+          <div className="mb-3 flex items-center justify-center gap-3">
+            <button className="text-gray-400 hover:text-gray-600">
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <span className="text-sm font-medium text-[#0B3558]">July 2024</span>
+            <button className="text-gray-400 hover:text-gray-600">
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Calendar Grid */}
+          <div className="mb-3">
+            {/* Day Headers */}
+            <div className="mb-1.5 grid grid-cols-7 gap-0.5 text-center">
+              {days.map((day) => (
+                <div
+                  key={day}
+                  className="text-[10px] font-medium uppercase text-[#667085]"
+                >
+                  {day}
+                </div>
+              ))}
+            </div>
+
+            {/* Calendar Days */}
+            {calendarDays.map((week, weekIndex) => (
+              <div key={weekIndex} className="grid grid-cols-7 gap-0.5">
+                {week.map((day, dayIndex) => {
+                  const isAvailable = availableDays.includes(day)
+                  const isSelected = day === selectedDay
+                  const isCurrentMonth =
+                    (weekIndex === 0 && day > 20) ||
+                    (weekIndex === 4 && day < 10)
+                      ? false
+                      : true
+
+                  return (
+                    <div
+                      key={`${weekIndex}-${dayIndex}`}
+                      className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] sm:h-7 sm:w-7 ${
+                        isSelected
+                          ? "bg-[#0069FF] font-semibold text-white"
+                          : isAvailable && isCurrentMonth
+                            ? "font-medium text-[#0069FF] hover:bg-blue-50"
+                            : isCurrentMonth
+                              ? "text-[#0B3558]"
+                              : "text-gray-300"
+                      }`}
+                    >
+                      {day}
+                    </div>
+                  )
+                })}
+              </div>
+            ))}
+          </div>
+
+          {/* Timezone */}
+          <div className="mt-3">
+            <p className="mb-0.5 text-[10px] font-medium text-[#667085]">
+              Time zone
+            </p>
+            <div className="flex items-center gap-1.5 text-xs text-[#476482]">
+              <Globe className="h-3.5 w-3.5" />
+              <span>Eastern time - US & Canada</span>
+              <ChevronRight className="h-2.5 w-2.5 rotate-90" />
+            </div>
+          </div>
+        </div>
+
+        {/* Right Panel - Time Slots */}
+        <div className="flex-shrink-0 border-t pt-3 sm:w-24 sm:border-l sm:border-t-0 sm:pl-4 sm:pt-0">
+          <p className="mb-2 text-xs font-medium text-[#0B3558]">
+            Monday, July 22
+          </p>
+
+          <div className="flex flex-wrap gap-1.5 sm:flex-col">
+            {timeSlots.map((time) => {
+              const isSelected = time === selectedTime
+
+              return (
+                <div key={time} className="flex gap-1">
+                  <button
+                    className={`rounded border px-2 py-1.5 text-[11px] font-medium transition-all ${
+                      isSelected
+                        ? "border-[#0069FF] bg-[#0069FF] text-white"
+                        : "border-[#0069FF] text-[#0069FF] hover:bg-blue-50"
+                    }`}
+                  >
+                    {time}
+                  </button>
+                  {isSelected && (
+                    <button className="rounded bg-[#0B3558] px-2 py-1.5 text-[11px] font-medium text-white">
+                      Confirm
+                    </button>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
