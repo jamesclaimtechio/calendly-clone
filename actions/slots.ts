@@ -108,7 +108,7 @@ export async function getAvailableSlots(
     })
 
     // Transform bookings to the expected format
-    const bookingsForSlotCalc: BookingSlotData[] = existingBookings.map(b => ({
+    const bookingsForSlotCalc: BookingSlotData[] = existingBookings.map((b: { id: string; startTime: Date; endTime: Date }) => ({
       id: b.id,
       startTime: b.startTime,
       endTime: b.endTime,
