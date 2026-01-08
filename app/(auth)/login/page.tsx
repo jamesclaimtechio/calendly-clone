@@ -6,11 +6,12 @@
  * - Form validation with react-hook-form + Zod
  * - Generic error message for security
  * - Link to signup page
+ * - DOM value sync for browser automation compatibility
  */
 
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
@@ -27,15 +28,59 @@ import { login } from "@/actions/auth"
 export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
-
+  
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
-    mode: "onBlur",
+    mode: "onChange", // Changed from onBlur for better reactivity
   })
+
+  // Register fields and get their refs
+  const emailRegister = register("email")
+  const passwordRegister = register("password")
+  
+  // Refs for DOM value sync (browser automation compatibility)
+  const emailRef = useRef<HTMLInputElement | null>(null)
+  const passwordRef = useRef<HTMLInputElement | null>(null)
+
+  // Sync DOM values with form state before submission
+  // This fixes browser automation compatibility issues
+  const syncDOMValues = useCallback(() => {
+    if (emailRef.current?.value) {
+      setValue("email", emailRef.current.value, { shouldValidate: true })
+    }
+    if (passwordRef.current?.value) {
+      setValue("password", passwordRef.current.value, { shouldValidate: true })
+    }
+  }, [setValue])
+
+  // Add native input listeners for browser automation compatibility
+  useEffect(() => {
+    const handleInput = (field: "email" | "password") => (e: Event) => {
+      const target = e.target as HTMLInputElement
+      if (target.value) {
+        setValue(field, target.value, { shouldValidate: true })
+      }
+    }
+
+    const emailEl = emailRef.current
+    const passwordEl = passwordRef.current
+    
+    const emailHandler = handleInput("email")
+    const passwordHandler = handleInput("password")
+
+    emailEl?.addEventListener("input", emailHandler)
+    passwordEl?.addEventListener("input", passwordHandler)
+
+    return () => {
+      emailEl?.removeEventListener("input", emailHandler)
+      passwordEl?.removeEventListener("input", passwordHandler)
+    }
+  }, [setValue])
 
   const onSubmit = async (data: LoginInput) => {
     setIsSubmitting(true)
@@ -56,6 +101,15 @@ export default function LoginPage() {
       setIsSubmitting(false)
     }
   }
+
+  // Custom submit handler that syncs DOM values first
+  const handleFormSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault()
+    syncDOMValues()
+    // Small delay to allow state update before validation
+    await new Promise(resolve => setTimeout(resolve, 10))
+    handleSubmit(onSubmit)(e)
+  }, [syncDOMValues, handleSubmit])
 
   return (
     <Card className="w-full max-w-md">
@@ -79,7 +133,7 @@ export default function LoginPage() {
         </p>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleFormSubmit} className="space-y-6">
           {serverError && (
             <div className="p-3 rounded-md bg-destructive/10 text-destructive text-sm">
               {serverError}
@@ -94,8 +148,15 @@ export default function LoginPage() {
               type="email"
               placeholder="you@example.com"
               autoComplete="email"
-              {...register("email")}
+              name={emailRegister.name}
+              onChange={emailRegister.onChange}
+              onBlur={emailRegister.onBlur}
+              ref={(e) => {
+                emailRegister.ref(e)
+                emailRef.current = e
+              }}
               aria-invalid={!!errors.email}
+              data-testid="email-input"
             />
             {errors.email && (
               <p className="text-sm text-destructive">{errors.email.message}</p>
@@ -110,8 +171,15 @@ export default function LoginPage() {
               type="password"
               placeholder="Enter your password"
               autoComplete="current-password"
-              {...register("password")}
+              name={passwordRegister.name}
+              onChange={passwordRegister.onChange}
+              onBlur={passwordRegister.onBlur}
+              ref={(e) => {
+                passwordRegister.ref(e)
+                passwordRef.current = e
+              }}
               aria-invalid={!!errors.password}
+              data-testid="password-input"
             />
             {errors.password && (
               <p className="text-sm text-destructive">{errors.password.message}</p>

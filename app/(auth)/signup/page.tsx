@@ -6,11 +6,12 @@
  * - Real-time username availability check
  * - Form validation with react-hook-form + Zod
  * - Server action for user creation
+ * - DOM value sync for browser automation compatibility
  */
 
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
@@ -37,11 +38,63 @@ export default function SignUpPage() {
     handleSubmit,
     watch,
     setError,
+    setValue,
     formState: { errors },
   } = useForm<SignUpInput>({
     resolver: zodResolver(signUpSchema),
-    mode: "onBlur",
+    mode: "onChange", // Changed from onBlur for better reactivity
   })
+
+  // Register fields and get their refs
+  const emailRegister = register("email")
+  const usernameRegister = register("username")
+  const passwordRegister = register("password")
+  
+  // Refs for DOM value sync (browser automation compatibility)
+  const emailRef = useRef<HTMLInputElement | null>(null)
+  const usernameRef = useRef<HTMLInputElement | null>(null)
+  const passwordRef = useRef<HTMLInputElement | null>(null)
+
+  // Sync DOM values with form state before submission
+  const syncDOMValues = useCallback(() => {
+    if (emailRef.current?.value) {
+      setValue("email", emailRef.current.value, { shouldValidate: true })
+    }
+    if (usernameRef.current?.value) {
+      setValue("username", usernameRef.current.value, { shouldValidate: true })
+    }
+    if (passwordRef.current?.value) {
+      setValue("password", passwordRef.current.value, { shouldValidate: true })
+    }
+  }, [setValue])
+
+  // Add native input listeners for browser automation compatibility
+  useEffect(() => {
+    const handleInput = (field: keyof SignUpInput) => (e: Event) => {
+      const target = e.target as HTMLInputElement
+      if (target.value) {
+        setValue(field, target.value, { shouldValidate: true })
+      }
+    }
+
+    const emailEl = emailRef.current
+    const usernameEl = usernameRef.current
+    const passwordEl = passwordRef.current
+    
+    const emailHandler = handleInput("email")
+    const usernameHandler = handleInput("username")
+    const passwordHandler = handleInput("password")
+
+    emailEl?.addEventListener("input", emailHandler)
+    usernameEl?.addEventListener("input", usernameHandler)
+    passwordEl?.addEventListener("input", passwordHandler)
+
+    return () => {
+      emailEl?.removeEventListener("input", emailHandler)
+      usernameEl?.removeEventListener("input", usernameHandler)
+      passwordEl?.removeEventListener("input", passwordHandler)
+    }
+  }, [setValue])
 
   const usernameValue = watch("username")
 
@@ -118,6 +171,15 @@ export default function SignUpPage() {
     }
   }
 
+  // Custom submit handler that syncs DOM values first
+  const handleFormSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault()
+    syncDOMValues()
+    // Small delay to allow state update before validation
+    await new Promise(resolve => setTimeout(resolve, 10))
+    handleSubmit(onSubmit)(e)
+  }, [syncDOMValues, handleSubmit])
+
   const getUsernameIcon = () => {
     switch (usernameStatus) {
       case "checking":
@@ -154,7 +216,7 @@ export default function SignUpPage() {
         </p>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleFormSubmit} className="space-y-6">
           {serverError && (
             <div className="p-3 rounded-md bg-destructive/10 text-destructive text-sm">
               {serverError}
@@ -169,8 +231,15 @@ export default function SignUpPage() {
               type="email"
               placeholder="you@example.com"
               autoComplete="email"
-              {...register("email")}
+              name={emailRegister.name}
+              onChange={emailRegister.onChange}
+              onBlur={emailRegister.onBlur}
+              ref={(e) => {
+                emailRegister.ref(e)
+                emailRef.current = e
+              }}
               aria-invalid={!!errors.email}
+              data-testid="email-input"
             />
             {errors.email && (
               <p className="text-sm text-destructive">{errors.email.message}</p>
@@ -186,9 +255,16 @@ export default function SignUpPage() {
                 type="text"
                 placeholder="johndoe"
                 autoComplete="username"
-                {...register("username")}
+                name={usernameRegister.name}
+                onChange={usernameRegister.onChange}
+                onBlur={usernameRegister.onBlur}
+                ref={(e) => {
+                  usernameRegister.ref(e)
+                  usernameRef.current = e
+                }}
                 aria-invalid={!!errors.username}
                 className="pr-10"
+                data-testid="username-input"
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2">
                 {getUsernameIcon()}
@@ -224,8 +300,15 @@ export default function SignUpPage() {
               type="password"
               placeholder="Minimum 8 characters"
               autoComplete="new-password"
-              {...register("password")}
+              name={passwordRegister.name}
+              onChange={passwordRegister.onChange}
+              onBlur={passwordRegister.onBlur}
+              ref={(e) => {
+                passwordRegister.ref(e)
+                passwordRef.current = e
+              }}
               aria-invalid={!!errors.password}
+              data-testid="password-input"
             />
             {errors.password && (
               <p className="text-sm text-destructive">{errors.password.message}</p>

@@ -3,11 +3,12 @@
  * 
  * Form for invitee to enter their details (name, email, notes)
  * before confirming the booking.
+ * Includes DOM value sync for browser automation compatibility.
  */
 
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
@@ -60,9 +61,11 @@ export function BookingForm({
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<BookingFormInput>({
     resolver: zodResolver(bookingFormSchema),
+    mode: "onChange", // Changed for better reactivity
     defaultValues: {
       inviteeName: "",
       inviteeEmail: "",
@@ -70,7 +73,56 @@ export function BookingForm({
     },
   })
 
-  const handleFormSubmit = async (data: BookingFormInput) => {
+  // Register fields and get their refs
+  const nameRegister = register("inviteeName")
+  const emailRegister = register("inviteeEmail")
+  const notesRegister = register("inviteeNotes")
+  
+  // Refs for DOM value sync (browser automation compatibility)
+  const nameRef = useRef<HTMLInputElement | null>(null)
+  const emailRef = useRef<HTMLInputElement | null>(null)
+  const notesRef = useRef<HTMLTextAreaElement | null>(null)
+
+  // Sync DOM values with form state before submission
+  const syncDOMValues = useCallback(() => {
+    if (nameRef.current?.value) {
+      setValue("inviteeName", nameRef.current.value, { shouldValidate: true })
+    }
+    if (emailRef.current?.value) {
+      setValue("inviteeEmail", emailRef.current.value, { shouldValidate: true })
+    }
+    if (notesRef.current?.value) {
+      setValue("inviteeNotes", notesRef.current.value, { shouldValidate: true })
+    }
+  }, [setValue])
+
+  // Add native input listeners for browser automation compatibility
+  useEffect(() => {
+    const handleInput = (field: keyof BookingFormInput) => (e: Event) => {
+      const target = e.target as HTMLInputElement | HTMLTextAreaElement
+      setValue(field, target.value, { shouldValidate: true })
+    }
+
+    const nameEl = nameRef.current
+    const emailEl = emailRef.current
+    const notesEl = notesRef.current
+    
+    const nameHandler = handleInput("inviteeName")
+    const emailHandler = handleInput("inviteeEmail")
+    const notesHandler = handleInput("inviteeNotes")
+
+    nameEl?.addEventListener("input", nameHandler)
+    emailEl?.addEventListener("input", emailHandler)
+    notesEl?.addEventListener("input", notesHandler)
+
+    return () => {
+      nameEl?.removeEventListener("input", nameHandler)
+      emailEl?.removeEventListener("input", emailHandler)
+      notesEl?.removeEventListener("input", notesHandler)
+    }
+  }, [setValue])
+
+  const onFormSubmit = async (data: BookingFormInput) => {
     setIsSubmitting(true)
     setSubmitError(null)
 
@@ -87,6 +139,15 @@ export function BookingForm({
       setIsSubmitting(false)
     }
   }
+
+  // Custom submit handler that syncs DOM values first
+  const handleFormSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault()
+    syncDOMValues()
+    // Small delay to allow state update before validation
+    await new Promise(resolve => setTimeout(resolve, 10))
+    handleSubmit(onFormSubmit)(e)
+  }, [syncDOMValues, handleSubmit])
 
   // Format the selected date nicely
   const formattedDate = format(selectedDate, "EEEE, MMMM d, yyyy")
@@ -140,7 +201,7 @@ export function BookingForm({
       </div>
 
       {/* Booking Form */}
-      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+      <form onSubmit={handleFormSubmit} className="space-y-4">
         {/* Name Field */}
         <div className="space-y-2">
           <Label htmlFor="inviteeName" className="text-[var(--color-text-primary)]">
@@ -151,8 +212,15 @@ export function BookingForm({
             type="text"
             placeholder="John Doe"
             disabled={isSubmitting}
-            {...register("inviteeName")}
+            name={nameRegister.name}
+            onChange={nameRegister.onChange}
+            onBlur={nameRegister.onBlur}
+            ref={(e) => {
+              nameRegister.ref(e)
+              nameRef.current = e
+            }}
             className={errors.inviteeName ? "border-red-500" : ""}
+            data-testid="invitee-name-input"
           />
           {errors.inviteeName && (
             <p className="text-sm text-red-500">{errors.inviteeName.message}</p>
@@ -169,8 +237,15 @@ export function BookingForm({
             type="email"
             placeholder="john@example.com"
             disabled={isSubmitting}
-            {...register("inviteeEmail")}
+            name={emailRegister.name}
+            onChange={emailRegister.onChange}
+            onBlur={emailRegister.onBlur}
+            ref={(e) => {
+              emailRegister.ref(e)
+              emailRef.current = e
+            }}
             className={errors.inviteeEmail ? "border-red-500" : ""}
+            data-testid="invitee-email-input"
           />
           {errors.inviteeEmail && (
             <p className="text-sm text-red-500">{errors.inviteeEmail.message}</p>
@@ -188,8 +263,15 @@ export function BookingForm({
             placeholder="Please share anything that will help prepare for our meeting..."
             rows={3}
             disabled={isSubmitting}
-            {...register("inviteeNotes")}
+            name={notesRegister.name}
+            onChange={notesRegister.onChange}
+            onBlur={notesRegister.onBlur}
+            ref={(e) => {
+              notesRegister.ref(e)
+              notesRef.current = e
+            }}
             className={errors.inviteeNotes ? "border-red-500" : ""}
+            data-testid="invitee-notes-input"
           />
           {errors.inviteeNotes && (
             <p className="text-sm text-red-500">{errors.inviteeNotes.message}</p>

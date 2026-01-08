@@ -3,11 +3,12 @@
  * 
  * Form for creating a new event type.
  * Client Component with react-hook-form + Zod validation.
+ * Includes DOM value sync for browser automation compatibility.
  */
 
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2 } from "lucide-react"
@@ -47,6 +48,7 @@ export function CreateEventForm({ onSuccess }: CreateEventFormProps) {
     reset,
   } = useForm<CreateEventTypeInput>({
     resolver: zodResolver(createEventTypeSchema),
+    mode: "onChange", // Changed for better reactivity
     defaultValues: {
       name: "",
       duration: 30,
@@ -55,7 +57,56 @@ export function CreateEventForm({ onSuccess }: CreateEventFormProps) {
     },
   })
 
-  const onSubmit = async (data: CreateEventTypeInput) => {
+  // Register fields and get their refs
+  const nameRegister = register("name")
+  const descriptionRegister = register("description")
+  const locationRegister = register("location")
+  
+  // Refs for DOM value sync (browser automation compatibility)
+  const nameRef = useRef<HTMLInputElement | null>(null)
+  const descriptionRef = useRef<HTMLTextAreaElement | null>(null)
+  const locationRef = useRef<HTMLInputElement | null>(null)
+
+  // Sync DOM values with form state before submission
+  const syncDOMValues = useCallback(() => {
+    if (nameRef.current?.value) {
+      setValue("name", nameRef.current.value, { shouldValidate: true })
+    }
+    if (descriptionRef.current?.value !== undefined) {
+      setValue("description", descriptionRef.current.value, { shouldValidate: true })
+    }
+    if (locationRef.current?.value !== undefined) {
+      setValue("location", locationRef.current.value, { shouldValidate: true })
+    }
+  }, [setValue])
+
+  // Add native input listeners for browser automation compatibility
+  useEffect(() => {
+    const handleInput = (field: keyof CreateEventTypeInput) => (e: Event) => {
+      const target = e.target as HTMLInputElement | HTMLTextAreaElement
+      setValue(field, field === "duration" ? parseInt(target.value) : target.value, { shouldValidate: true })
+    }
+
+    const nameEl = nameRef.current
+    const descriptionEl = descriptionRef.current
+    const locationEl = locationRef.current
+    
+    const nameHandler = handleInput("name")
+    const descriptionHandler = handleInput("description")
+    const locationHandler = handleInput("location")
+
+    nameEl?.addEventListener("input", nameHandler)
+    descriptionEl?.addEventListener("input", descriptionHandler)
+    locationEl?.addEventListener("input", locationHandler)
+
+    return () => {
+      nameEl?.removeEventListener("input", nameHandler)
+      descriptionEl?.removeEventListener("input", descriptionHandler)
+      locationEl?.removeEventListener("input", locationHandler)
+    }
+  }, [setValue])
+
+  const onFormSubmit = async (data: CreateEventTypeInput) => {
     setIsSubmitting(true)
     setServerError(null)
 
@@ -77,8 +128,17 @@ export function CreateEventForm({ onSuccess }: CreateEventFormProps) {
     }
   }
 
+  // Custom submit handler that syncs DOM values first
+  const onSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault()
+    syncDOMValues()
+    // Small delay to allow state update before validation
+    await new Promise(resolve => setTimeout(resolve, 10))
+    handleSubmit(onFormSubmit)(e)
+  }, [syncDOMValues, handleSubmit])
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={onSubmit} className="space-y-6">
       {serverError && (
         <div className="p-3 rounded-md bg-destructive/10 text-destructive text-sm">
           {serverError}
@@ -91,8 +151,15 @@ export function CreateEventForm({ onSuccess }: CreateEventFormProps) {
         <Input
           id="name"
           placeholder="e.g., 30 Minute Meeting"
-          {...register("name")}
+          name={nameRegister.name}
+          onChange={nameRegister.onChange}
+          onBlur={nameRegister.onBlur}
+          ref={(e) => {
+            nameRegister.ref(e)
+            nameRef.current = e
+          }}
           aria-invalid={!!errors.name}
+          data-testid="event-name-input"
         />
         {errors.name && (
           <p className="text-sm text-destructive">{errors.name.message}</p>
@@ -106,7 +173,7 @@ export function CreateEventForm({ onSuccess }: CreateEventFormProps) {
           defaultValue="30"
           onValueChange={(value) => setValue("duration", parseInt(value))}
         >
-          <SelectTrigger>
+          <SelectTrigger data-testid="event-duration-select">
             <SelectValue placeholder="Select duration" />
           </SelectTrigger>
           <SelectContent>
@@ -128,8 +195,15 @@ export function CreateEventForm({ onSuccess }: CreateEventFormProps) {
         <Textarea
           id="description"
           placeholder="Brief description of this event type..."
-          {...register("description")}
+          name={descriptionRegister.name}
+          onChange={descriptionRegister.onChange}
+          onBlur={descriptionRegister.onBlur}
+          ref={(e) => {
+            descriptionRegister.ref(e)
+            descriptionRef.current = e
+          }}
           aria-invalid={!!errors.description}
+          data-testid="event-description-input"
         />
         {errors.description && (
           <p className="text-sm text-destructive">{errors.description.message}</p>
@@ -142,8 +216,15 @@ export function CreateEventForm({ onSuccess }: CreateEventFormProps) {
         <Input
           id="location"
           placeholder="e.g., Zoom, Google Meet, Phone"
-          {...register("location")}
+          name={locationRegister.name}
+          onChange={locationRegister.onChange}
+          onBlur={locationRegister.onBlur}
+          ref={(e) => {
+            locationRegister.ref(e)
+            locationRef.current = e
+          }}
           aria-invalid={!!errors.location}
+          data-testid="event-location-input"
         />
         {errors.location && (
           <p className="text-sm text-destructive">{errors.location.message}</p>
