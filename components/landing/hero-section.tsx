@@ -9,12 +9,15 @@ export function HeroSection() {
   const router = useRouter()
 
   return (
-    <section className="relative overflow-hidden bg-white py-12 md:py-20">
-      {/* Background gradient shapes - positioned on right side */}
-      <div className="pointer-events-none absolute right-0 top-0 h-full w-[60%] overflow-hidden">
-        <div className="absolute -right-20 -top-20 h-[500px] w-[500px] rounded-full bg-gradient-to-br from-[#0069FF] to-[#00D4FF] opacity-90 md:h-[600px] md:w-[600px]" />
-        <div className="absolute right-10 top-32 h-[350px] w-[350px] rounded-full bg-gradient-to-br from-[#E040FB] to-[#FF4081] opacity-85 md:h-[450px] md:w-[450px]" />
-        <div className="absolute -bottom-10 right-40 h-[280px] w-[280px] rounded-full bg-gradient-to-br from-[#7C3AED] to-[#0069FF] opacity-75 md:h-[350px] md:w-[350px]" />
+    <section className="relative bg-white py-12 md:py-20">
+      {/* Background gradient shapes - full height, extends behind card on mobile */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        {/* Blue circle - top right */}
+        <div className="absolute -right-32 -top-32 h-[400px] w-[400px] rounded-full bg-gradient-to-br from-[#0069FF] to-[#00D4FF] opacity-90 sm:h-[500px] sm:w-[500px] md:-right-20 md:-top-20 md:h-[600px] md:w-[600px]" />
+        {/* Pink/Magenta circle - middle right */}
+        <div className="absolute right-0 top-40 h-[300px] w-[300px] rounded-full bg-gradient-to-br from-[#E040FB] to-[#FF4081] opacity-85 sm:h-[350px] sm:w-[350px] md:right-10 md:top-32 md:h-[450px] md:w-[450px]" />
+        {/* Purple circle - bottom right */}
+        <div className="absolute -bottom-20 right-10 h-[250px] w-[250px] rounded-full bg-gradient-to-br from-[#7C3AED] to-[#0069FF] opacity-75 sm:h-[280px] sm:w-[280px] md:right-40 md:h-[350px] md:w-[350px]" />
       </div>
 
       <div className="relative z-10 mx-auto max-w-[1280px] px-6">
@@ -121,7 +124,7 @@ function MockBookingCard() {
   const selectedTime = "11:00am"
 
   return (
-    <div className="w-full max-w-xl rounded-2xl bg-white/95 p-5 shadow-2xl backdrop-blur-sm md:p-6">
+    <div className="relative w-full max-w-xl rounded-2xl border border-gray-100 bg-white p-5 shadow-xl md:p-6">
       <h3 className="mb-5 text-lg font-semibold text-[#0B3558] md:text-xl">
         Share your booking page
       </h3>
